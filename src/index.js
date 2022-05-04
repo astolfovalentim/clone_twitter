@@ -4,7 +4,7 @@ const cors = require("cors");
 const connectDatabase = require("./database/database");
 const userRoute = require("./users/users.route");
 const authRoute = require("./auth/auth.route");
-const jwtVerify = require("./auth/auth.middleware");
+const tweetsRoute = require("./tweets/tweets.route");
 
 const port = process.env.PORT || 3001;
 const app = express();
@@ -14,13 +14,13 @@ app.use(express.json());
 
 connectDatabase();
 
-app.get("/",jwtVerify, (req, res) => {
+app.get("/", (req, res) => {
     res.send({ message: "Hello, world!" });
 });
 
 app.use("/users", userRoute);
-
 app.use("/auth", authRoute);
+app.use("/tweets", tweetsRoute);
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);

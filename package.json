@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/astolfovalentim/clone_twitter.git"
+    "url": "git+https://github.com/Leoruiz197/clone_twitter.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/astolfovalentim/clone_twitter/issues"
+    "url": "https://github.com/Leoruiz197/clone_twitter/issues"
   },
-  "homepage": "https://github.com/astolfovalentim/clone_twitter#readme",
+  "homepage": "https://github.com/Leoruiz197/clone_twitter#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
