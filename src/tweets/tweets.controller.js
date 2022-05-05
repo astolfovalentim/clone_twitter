@@ -22,19 +22,46 @@ const createTweetController = async (req, res) => {
 };
 
 const findAllTweetsController = async (req, res) => {
+    let { limit, offset } = req.query;
+
+    offset = Number(offset);
+    limit = Number(limit);
+
+    if (!offset) {
+      offset = 0;
+    }
+
+    if (!limit) {
+      limit = 2;
+    }
+
     try {
-        const tweets = await tweetService.findAllTweetsService();
+        const tweets = await tweetService.findAllTweetsService(offset, limit);
+        const total = await tweetService.countTweets();
+
+        const currentUrl = req.baseUrl;
+
+        const next = offset + limit;
+        const nextUrl = next < total ? `${currentUrl}?limit=${limit}&offset=${next}` : null;
+
+        const previous = offset - limit < 0 ? null : offset - limit;
+        const previousUrl = previous != null? `${currentUrl}?limit=${limit}&offset=${previous}`: null;
 
         if (tweets.length === 0) {
             return res.status(404).send({ message: "Não existem tweets!" });
         }
 
         return res.send({
+            nextUrl,
+            previousUrl,
+            limit,
+            offset,
+            total,
             results: tweets.map((tweet) => ({
                 id: tweet._id,
                 message: tweet.message,
                 likes: tweet.likes.length,
-                comments: tweet.comments.length,
+                comments: tweet.comments,
                 retweets: tweet.retweets.length,
                 name: tweet.user.name,
                 username: tweet.user.username,
@@ -71,5 +98,59 @@ const searchTweetController = async (req, res) => {
         })),
     });
 };
+const likeTweetController = async (req, res) => {
+    const { id } = req.params;
+      
+    const userId = req.userId;
+    
+    const tweetLiked = await tweetService.likesService(id, userId);
+  
+    if (tweetLiked.lastErrorObject.n === 0) {
+        return res.status(400).send({ message: "Você já deu like neste tweet!"})
+    };
+    
+    return res.send({
+      message: "Like realizado com sucesso!"
+    });
+};
 
-module.exports = { createTweetController, findAllTweetsController, searchTweetController }
+const retweetTweetController = async (req, res) => {
+    const { id } = req.params;
+
+    const userId = req.userId;
+
+    const tweetRetweeted = await tweetService.retweetsService(id, userId);
+
+    if (tweetRetweeted.lastErrorObject.n === 0) {
+        return res
+        .status(400)
+        .send({ message: "Você já deu retweet neste tweet!" });
+    }
+
+    return res.send({
+        message: "Retweet realizado com sucesso!",
+    });
+};
+
+const commentTweetController = async (req, res) => {
+    const { id } = req.params;
+  
+    const userId = req.userId;
+
+    const { comment } = req.body;
+  
+    await tweetService.commentsService(id, userId, comment);
+  
+    return res.status(201).send({
+      message: "Comentário realizado com sucesso!",
+    });
+};
+  
+module.exports = { 
+    createTweetController, 
+    findAllTweetsController, 
+    searchTweetController,
+    likeTweetController,
+    retweetTweetController,
+    commentTweetController
+}
